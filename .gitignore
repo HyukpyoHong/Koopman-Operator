@@ -1,0 +1,6 @@
+## Ignore instant execution function files
+
+*.png
+*.csv
+__pycache__/
+.DS_Store
