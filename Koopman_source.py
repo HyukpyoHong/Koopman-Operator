@@ -1,14 +1,24 @@
 ### Load some packages 
-
+### Import packages 
 import networkx as nx # for handling graphs/networks 
 import numpy as np # for basic scientific computing 
 import pandas as pd # for basic scientific computing 
 import matplotlib.pyplot as plt # for plotting
 import matplotlib.gridspec as gridspec
-from scipy.special import binom
-from scipy.integrate import solve_ivp
-#import csv
 
+import seaborn as sns
+
+from scipy.special import binom
+from scipy.linalg import subspace_angles
+
+from scipy.integrate import solve_ivp
+import Koopman_source as kp
+from math import comb
+#from copy import copy
+import csv  
+from scipy.optimize import minimize
+from scipy.special import expit
+from numpy import linalg as LA
 
 def list2onehot(y, list_classes=None):
     """
@@ -118,16 +128,16 @@ def toy_d1(t, x0, mu0, lambda0): # Here, d1 stands for the first discrete exampl
         x_mat[:,i] = x_new
     return x_mat
 
-def Lorenz(x_old, sigma0, rho0, beta0):
-    dt = 0.1
+def Lorenz(x_old, sigma0, rho0, beta0, dt):
+    # dt = 0.1
     x_new = x_old.copy()
     x_new[0] = x_old[0] + sigma0 * (x_old[1]-x_old[0])*dt
     x_new[1] = x_old[1] + (x_old[0]*(rho0-x_old[2]) - x_old[2])*dt
     x_new[2] = x_old[2] + (x_old[0]*x_old[2] - beta0*x_old[2])*dt
     return x_new
 
-def Lotka_Voltera(x_old, rho0, sigma0, alpha0, beta0):
-    dt = 1
+def Lotka_Voltera(x_old, rho0, sigma0, alpha0, beta0, dt):
+    # dt = 1
     x_new = x_old.copy()
     x_new[0] = rho0 * x_old[0] * (1- x_old[0]) - alpha0 * x_old[0] * x_old[1]
     x_new[1] = sigma0 * x_old[1] + beta0 * x_old[0] * x_old[1]
@@ -184,6 +194,9 @@ def psi_d2_Laguerre(x):
             obs[idx] = Laguerre_poly(x[0], i-j) * Laguerre_poly(x[1], j)
             idx += 1
     return obs
+
+def psi_radial(x, cj, gamma):
+    return np.exp(-gamma *LA.norm(x-cj, 2))
 
 def psi_Laguerre(x, d, max_order):
     # d: the number of variables or the dimension of a dynamical system.
