@@ -155,17 +155,18 @@ def psi_id(x):
 def psi_d1(x):
     return x
 
-def psi_d2(x):
+def psi_d2(x, max_order):
     d = 2 # the number of variables or the dimension of a dynamical system.
-    max_order = 2
     num_obs = comb(max_order+d, d)# (d+max_order)Cd = dH0 + dH1 + \cdots dHmax_order by the hockey stick rule where H is repeated combination nHr = (n+r-1)Cr
     obs = np.zeros(num_obs) # the total number of observable functions, psi_m's.
     idx = 0 
+    ind_mat =[]
     for i in range(max_order+1):
         for j in range(i+1):
             obs[idx] = np.power(x[0], i-j) * np.power(x[1], j)
             idx += 1
-    return obs
+            ind_mat.append([i-j,j])
+    return obs, ind_mat
 
 def Laguerre_poly(x, n):
     if n==0:
